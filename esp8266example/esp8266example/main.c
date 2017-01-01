@@ -6,9 +6,25 @@
 #include <avr/delay.h>
 #include "esp8266.h"
 #include "printf.h"
+#define SIGRD 5
+#include <avr/boot.h>
+
 FILE usart0_str = FDEV_SETUP_STREAM(USART0SendByte, USART0ReceiveByte, _FDEV_SETUP_RW);
 
-
+uint32_t jenkins_one_at_a_time_hash(char *key, size_t len)
+{
+	uint32_t hash, i;
+	for(hash = i = 0; i < len; ++i)
+	{
+		hash += key[i];
+		hash += (hash << 10);
+		hash ^= (hash >> 6);
+	}
+	hash += (hash << 3);
+	hash ^= (hash >> 11);
+	hash += (hash << 15);
+	return hash;
+}
 
 int main (void)
 {
@@ -17,16 +33,10 @@ int main (void)
 	stdin=stdout=&usart0_str;
 	_delay_ms(2000);
 	
-	char request1[]="POST /user_and_device_signup?name=taha&username=taha&password=897988935556&admin=false&location=balingen&deviceid=656556-xf2sdf2-sdf5f-sdf&email=taha@gmail.com HTTP/1.1";
-	char request2[]="Host: atmega2560-esp8266.herokuapp.com";
-	char request3[]="User-Agent: test";
-	int length1=strlen(request1);
-	int length2=strlen(request2);
-	int length3=strlen(request3);
-	int Totallength=length3+length2+length1+8;
-	char DataByte[];
-	itoa(Totallength,DataByte);
 
+	
+	
+	printf("%d\n",jenkins_one_at_a_time_hash("aniladiguzel@gmail.com",20));
 	WifiReset();
 	_delay_ms(5000);
 	WifiConnectionMode('1');
@@ -35,14 +45,15 @@ int main (void)
 	_delay_ms(10000);
 	WifiConnectionStart("atmega2560-esp8266.herokuapp.com","80");
 	_delay_ms(2000);
-	WifiSendByte(DataByte);
-	_delay_ms(2000);
-	PostRequest(request1,request2,request3);
+	
+	//UserSignupRequest("gulcin","glcn","12321334234","false","balingen","1232132jklj-123kj123-sdf213-asd","glcn@gmail.com");
+
+	DeviceParamRequest("glcn","1232132jklj-123kj123-sdf213-asd","glcn@gmail.com","true","true","true","true","true","true","true","true","true","true","true","true");
 	
 	
 
 
-	printf("Totallength=%d",Totallength);
+	
 
 	while(1)
 	{
